@@ -530,7 +530,7 @@
                   ////////////////////////////////////////////////////////////////////
                   $.ajax({
                     type: "GET",
-                    url: "/centroids.csv",
+                    url: "centroids.csv",
                     dataType: "text",
                     success: function(csvData) {
                       makeGeoJSON(csvData);
