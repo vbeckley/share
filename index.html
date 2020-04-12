@@ -252,7 +252,7 @@
               $.ajax({
                 type: "GET",
                 url:
-                  //"https://docs.google.com/spreadsheets/d/e/2PACX-1vRzHJRznFF6tioEoCLgZ-es5wr-yCX9RNCO245gFJKtSxiMtUgd83OOdp5Q_ufbol3MoxCZYeHj3MDb/pub?gid=1564751994&single=true&output=csv",
+                  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzHJRznFF6tioEoCLgZ-es5wr-yCX9RNCO245gFJKtSxiMtUgd83OOdp5Q_ufbol3MoxCZYeHj3MDb/pub?gid=1564751994&single=true&output=csv",
                 dataType: "text",
                 success: function(csvData) {
                   makeGeoJSON(csvData);
