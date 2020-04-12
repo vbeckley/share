@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>San Diego Watersheds</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Calls mapbox gl, jquery, w3 stylesheet, csv2geojson, turf, mapbox geocoder -->
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <script src="https://npmcdn.com/csv2geojson@latest/csv2geojson.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+
+  <body>
+    <div id="main">
+      <div id="map"></div>
+      <div class="map-overlay" id="features">
+        <div id="title">
+          <h2>Watershed Finder</h2>
+        </div>
+      </div>
+      <!-- container, nav, up are the legend window -->
+      <div id="container" class="container">
+        <nav id="nav" onclick="togNav()" class="minimenubutton">
+          <i id="up" class="arrow up"></i>
+        </nav>
+
+        <!-- filter-group is the types (shown as icons) from the google sheet -->
+        <nav id="filter-group" class="filter-group"></nav>
+      </div>
+    </div>
+
+    <!-- here comes the geocoder -->
+    <div id="geocoder" class="geocoder"></div>
+
+    <script>
+      //here is the open and close function for the legend window//
+      function togNav() {
+        var cont = document.getElementById("container");
+        var arrow = document.getElementById("up");
+        var filter = document.getElementById("filter-group");
+        if (cont.style.height == "1px") {
+          cont.style.height = "140px";
+          filter.style.height = "90%";
+          arrow.style.transform = "rotate(-135deg)";
+          arrow.style.transition = "1.2s";
+          cont.style.transitionProperty = "all";
+          cont.style.transitionDuration = "1s";
+          //  cont.style.transitionTimingFunction = "cubic-bezier(0, 1, 0.5, 1)";
+          arrow.style.WebkitTransform = "rotate(-135dg)";
+          arrow.style.marginBottom = "5px";
+          arrow.style.marginTop = "0px";
+        } else {
+          cont.style.height = "1px";
+          filter.style.height = "0%";
+          arrow.style.transform = "rotate(45deg)";
+          arrow.style.transition = "1.2s";
+          cont.style.transitionProperty = "all";
+          cont.style.transitionDuration = "1s";
+          // cont.style.transitionTimingFunction = "cubic-bezier(0, 1, 0.5, 1)";
+          arrow.style.WebkitTransform = "rotate(45dg)";
+          arrow.style.marginBottom = "2px";
+          arrow.style.marginTop = "5px";
+        }
+      }
+    </script>
+    <script>
+      // this is my (Victoria Beckley vbeckley0@gmail.com) mapbox user token //
+      // if the map gets over 50k views in a month I get charged, but that seems unlikely //
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidmJlY2tsZXkiLCJhIjoiY2l2bjVpOXN1MDA1MzJvbjE5Y2xveWhreSJ9.5UtoVF_PlcNGeVX07j2DWg";
+
+      var filterGroup = document.getElementById("filter-group");
+
+      //gets the basemap from mapbox//
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/vbeckley/cjvli3dx51ev01cn543p74ljq",
+        center: [-116.800875, 32.671734],
+        zoom: 9
+      });
+
+      //The popup//
+      var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: [0, -10]
+      });
+
+      //this makes it so that anytime a popup is open and then a click is made not on an object the popup closes
+      //also allowing for one popup to close while another opens
+      var popupOpen = false;
+
+      map.on("click", function(e) {
+        if ((popupOpen = true)) {
+          popup.remove();
+          popupOpen = false;
+        }
+      });
+
+      //Importing the Points of Interest from the Google Sheet//
+      map.on("load", function() {
+        ////////////////////////////////////////////////////////////////////
+        // WATERSHED LAYER /////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////
+        //Now the watershed polygons, they come from a geojson asset (see asset folder)//
+        //The watersheds are simplified to 1000ft accuracy to reduce the number of verticies//
+        //Which is why I have them fade away when zoomed in close bc they aren't accurate at that zoom//
+        $.getJSON(
+          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fbasins_simplified_1000ft_1.geojson?v=1567046320135",
+          function(watersheds) {
+            map.addSource("watersheds", {
+              type: "geojson",
+              data: watersheds
+            });
+            //Bring in the watershed layer as a filled polygon//
+            map.addLayer(
+              {
+                id: "watersheds",
+                type: "fill",
+                //          maxzoom: 10,
+                source: "watersheds",
+                layout: {},
+                paint: {
+                  "fill-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    0,
+                    0,
+                    9,
+                    0,
+                    10,
+                    0,
+                    11,
+                    0
+                  ],
+                  "fill-color": "rgb(0, 122, 209)"
+                }
+              },
+              "settlement-label"
+            );
+            //Bring it in again, this time to highlight one watershed poly on click (more below)//
+            map.addLayer(
+              {
+                id: "watershedshighlight",
+                type: "fill",
+                //    maxzoom: 10,
+                source: "watersheds",
+                layout: {},
+                paint: {
+                  "fill-color": "rgb(0,0,0)",
+                  "fill-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    0,
+                    0.15,
+                    9,
+                    0.15,
+                    10,
+                    0.125,
+                    14,
+                    0
+                  ]
+                },
+                filter: ["in", "HUNAME", ""]
+              },
+              "settlement-label"
+            );
+            //And one more watershed layer as an outline//
+            map.addLayer(
+              {
+                id: "watersheds-line",
+                type: "line",
+                source: "watersheds",
+                layout: {},
+                paint: {
+                  "line-width": 1.2,
+                  "line-color": "rgb(13,104,149)",
+                  "line-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    0,
+                    0.95,
+                    9,
+                    0.6,
+                    10,
+                    0.2,
+                    20,
+                    0
+                  ]
+                }
+              },
+              "settlement-label"
+            );
+
+            // this is to highlight the watershed upon click //
+            map.on("click", function(e) {
+              // set bbox as 0px reactangle area around clicked point //
+              var bbox = [[e.point.x, e.point.y], [e.point.x, e.point.y]];
+              var features = map.queryRenderedFeatures(bbox, {
+                layers: ["watersheds"]
+              });
+
+              // Run through the selected features and set a filter
+              // to match features with unique FIPS codes to activate
+              // the `watershedhighlighted` layer.
+              var filter = features.reduce(
+                function(memo, feature) {
+                  memo.push(feature.properties.HUNAME);
+                  return memo;
+                },
+                ["in", "HUNAME"]
+              );
+
+              map.setFilter("watershedshighlight", filter);
+              console.log("coords: ", bbox);
+              console.log("bounding babies: ", features);
+            });
+
+            //This creates a popup on click that says the name of the watershed selected//
+            map.on("click", "watersheds", function(e) {
+              popup.setLngLat(e.lngLat);
+              popup.setHTML(
+                "<h3>" +
+                  e.features[0].properties.HUNAME +
+                  " WATERSHED" +
+                  "</h3>"
+              );
+              popup.addTo(map);
+            });
+            //Prints said watershed//
+            console.log("watersheds: ", watersheds.features[0]);
+
+            //And NOW THE SPREADSHEET (or "POI LAYER")//
+            //Brings it in from a google sheet that is published with url below//
+            $(document).ready(function() {
+              $.ajax({
+                type: "GET",
+                url:
+                  //"https://docs.google.com/spreadsheets/d/e/2PACX-1vRzHJRznFF6tioEoCLgZ-es5wr-yCX9RNCO245gFJKtSxiMtUgd83OOdp5Q_ufbol3MoxCZYeHj3MDb/pub?gid=1564751994&single=true&output=csv",
+                dataType: "text",
+                success: function(csvData) {
+                  makeGeoJSON(csvData);
+                }
+              });
+            });
+
+            ////////////////////////////////////////////////////////////////////
+            // POI LAYER ////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+            function makeGeoJSON(csvData) {
+              csv2geojson.csv2geojson(
+                csvData,
+                {
+                  latfield: "Latitude (Required)",
+                  lonfield: "Longitude (Required)",
+                  delimiter: ","
+                },
+
+                function(err, pois) {
+                  map.addSource("pois", {
+                    type: "geojson",
+                    data: pois
+                  });
+                  //Note how the field names come straight from the google sheet, must change here if changed there!//
+                  console.log("Pois: ", pois.features[0].geometry.coordinates);
+
+                  //This is the POI layer that shows only the labels//
+                  //Which comes from the "Label or Popup Only" field being set to "Label"//
+                  //Has some kinda complicated symbology that is set to match the mapbox basemap//
+                  //And it differs based on the type, like water features are blue, community is grey,..//
+                  map.addLayer({
+                    id: "poi_labels",
+                    type: "symbol",
+                    source: "pois",
+                    //  'minzoom': 10,
+                    layout: {
+                      "text-field": ["get", "Name"],
+                      "text-font": ["DIN Offc Pro Regular"],
+                      "text-size": [
+                        "step",
+                        ["zoom"],
+                        0,
+                        9,
+                        10,
+                        11,
+                        [
+                          "match",
+                          ["get", "Type (Required)"],
+                          [
+                            "Community",
+                            "Coastkeeper Project Site",
+                            "Public Land or Protected Area",
+                            "Coastkeeper HQ"
+                          ],
+                          12,
+                          ["Point of Interest", "Recreation Destination"],
+                          11,
+                          ["Body of Water", "Protected Water Body"],
+                          10,
+                          10
+                        ],
+                        11.1,
+                        0
+                      ],
+                      "text-letter-spacing": 0.1,
+                      "text-line-height": 1.2,
+                      "text-max-width": 7,
+                      "text-transform": [
+                        "match",
+                        ["get", "Type (Required)"],
+                        ["Community", "Body of Water", "Protected Water Body"],
+                        "uppercase",
+                        "none"
+                      ]
+                    },
+                    paint: {
+                      "text-color": [
+                        "match",
+                        ["get", "Type (Required)"],
+                        ["Community"],
+                        "#9e9e9e",
+                        [
+                          "Point of Interest",
+                          "Public Land or Protected Area",
+                          "Coastkeeper HQ"
+                        ],
+                        "#a8a8a8",
+                        [
+                          "Body of Water",
+                          "Protected Water Body",
+                          "Coastkeeper Project Site"
+                        ],
+                        "#5babb5",
+                        ["Recreation Destination"],
+                        "#6b6b6b",
+                        "#9e9e9e"
+                      ],
+                      "text-halo-color": "#ffffff",
+                      "text-halo-width": [
+                        "match",
+                        ["get", "Type (Required)"],
+                        [
+                          "Community",
+                          "Coastkeeper Project Site",
+                          "Coastkeeper HQ",
+                          "Protected Water Body",
+                          "Body of Water"
+                        ],
+                        1,
+                        0.5
+                      ]
+                    },
+                    filter: ["==", ["get", "Label Only or Popup"], "Label Only"]
+                  });
+                  //This says ignore the label ones and move on to the popup only ones//
+                  pois.features.forEach(function(feature) {
+                    var symbol = feature.properties["Type (Required)"];
+                    var layerID = symbol;
+                    var labelPopup =
+                      feature.properties["Label Only or Popup (Required)"];
+
+                    if (labelPopup == "Label Only") {
+                      return;
+                    }
+
+                    //And now we add the popup POIs which look like lil icons based on their "type"//
+                    if (!map.getLayer(layerID)) {
+                      map.addLayer({
+                        id: layerID,
+                        type: "symbol",
+                        source: "pois",
+                        //  'minzoom': 10,
+                        layout: {
+                          visibility: "none",
+                          "icon-image": [
+                            "match",
+                            ["get", "Type (Required)"],
+                            ["Point of Interest"],
+                            "community_marker",
+                            ["Body of Water"],
+                            "water-marker_newblue-01",
+                            ["Recreation Destination"],
+                            "rec_marker",
+                            ["Coastkeeper HQ"],
+                            "home_marker",
+                            ["Protected Water Body"],
+                            "protected_water_marker_newblue-01",
+                            ["Coastkeeper Project Site"],
+                            "community_marker",
+                            ["Community"],
+                            "community_marker",
+                            ["Public Land or Protected Area"],
+                            "public_land_marker",
+                            "dot-15"
+                          ],
+                          "icon-allow-overlap": true,
+                          "icon-size": [
+                            "interpolate",
+                            ["linear"],
+                            ["zoom"],
+                            4,
+                            0,
+                            8,
+                            1,
+                            16,
+                            0.75
+                          ]
+                        },
+                        filter: [
+                          "all",
+                          [
+                            "==",
+                            ["get", "Label Only or Popup (Required)"],
+                            "Popup"
+                          ],
+                          ["==", ["get", "Type (Required)"], symbol]
+                        ]
+                      });
+                      //This prints the layerIDs loaded into the map, which matches the "type" shown in the legend window//
+                      console.log("layerid: ", layerID);
+
+                      // Add checkbox and label elements to the legend window for the POI layer//
+                      var input = document.createElement("input");
+                      input.type = "checkbox";
+                      input.id = layerID;
+                      input.checked = false;
+                      filterGroup.appendChild(input);
+
+                      var legend_icon = null;
+                      var type = feature.properties["Type (Required)"];
+
+                      // This assigns urls for the icons in the legend window, some are grouped//
+                      if (type == "Community" || type == "Point of Interest") {
+                        legend_icon =
+                          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fcommunity_orange_icon.svg?v=1568610053481";
+                      } else if (type == "Body of Water") {
+                        legend_icon =
+                          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fwater_drop_icon_newblue-01.svg?v=1573515759280";
+                      } else if (type == "Recreation Destination") {
+                        legend_icon =
+                          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Frec_green_icon.svg?v=1568610053515";
+                      } else if (type == "Protected Water Body") {
+                        legend_icon =
+                          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fprotected_water_icon_newblue-01.svg?v=1573515834853";
+                      } else if (type == "Public Land or Protected Area") {
+                        legend_icon =
+                          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fpublic_land_green_icon.svg?v=1568610053420";
+                      } else if (
+                        type == "Coastkeeper Project Site" ||
+                        type == "Coastkeeper HQ"
+                      ) {
+                        legend_icon =
+                          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fhome_orange_icon.svg?v=1568610053456";
+                      }
+
+                      var label = document.createElement("label");
+                      var image1 =
+                        "<img src=" + legend_icon + " class='w3-image'>";
+
+                      //Name of the icon in the legend window comes from the first of the grouped items that loads//
+                      //Community and Point of interest are grouped//
+                      //Coastkeeper Project Site and Coastkeeper HQ are grouped//
+                      label.setAttribute("for", layerID);
+                      label.innerHTML =
+                        image1 + "<br>" + feature.properties["Type (Required)"];
+                      filterGroup.appendChild(label);
+
+                      // When the checkbox changes (icon is clicked), update the visibility of the layer//
+                      input.addEventListener("change", function(e) {
+                        map.setLayoutProperty(
+                          layerID,
+                          "visibility",
+                          e.target.checked ? "visible" : "none"
+                        );
+                      });
+
+                      //this is the html content for the POI popup//
+                      //Only shows description field if not empty//
+                      map.on("click", layerID, function(e) {
+                        var coord = e.features[0].geometry.coordinates;
+                        var spot = e.features[0].properties["Name (Required)"];
+                        var shed = e.features[0].properties.Watershed;
+                        var type = e.features[0].properties["Type (Required)"];
+                        var desc = e.features[0].properties.Description;
+                        var more = e.features[0].properties.Description;
+                        if (more != null && more != "") {
+                          more = "<br>" + "Details: " + desc;
+                        } else {
+                          more = "";
+                        }
+
+                        popup
+                          .setLngLat(coord)
+                          .setHTML(
+                            "<h3>" +
+                              type +
+                              ": " +
+                              spot +
+                              more +
+                              "<hr>" +
+                              shed +
+                              " Watershed" +
+                              "</h3>"
+                          )
+
+                          .addTo(map);
+                        popupOpen = true;
+                      });
+                    }
+                  });
+
+                  ////////////////////////////////////////////////////////////////////
+                  // WATERSHED CENTROIDS ////////////////////////////////////////////////////////
+                  ////////////////////////////////////////////////////////////////////
+                  $.ajax({
+                    type: "GET",
+                    url: "/centroids.csv",
+                    dataType: "text",
+                    success: function(csvData) {
+                      makeGeoJSON(csvData);
+                    }
+                  });
+
+                  //Loads the watershed centroids from the csv in this folder//
+                  //These are for when a watershed is searched in the search bar, result is these centroids//
+                  function makeGeoJSON(csvData) {
+                    csv2geojson.csv2geojson(
+                      csvData,
+                      {
+                        latfield: "Y",
+                        lonfield: "X",
+                        delimiter: ","
+                      },
+
+                      function(err, centroids) {
+                        map.addSource("centroids", {
+                          type: "geojson",
+                          data: centroids
+                        });
+
+                        //Here's the navigation controls!!//
+                        var nav = new mapboxgl.NavigationControl();
+                        map.addControl(nav, "bottom-left");
+
+                        ////////////////////////////////////////////////////////////////////
+                        // GEOCODER ////////////////////////////////////////////////////////
+                        ////////////////////////////////////////////////////////////////////
+                        var geocoder = new MapboxGeocoder({});
+
+                        //Here the centroids are brought in from above//
+                        var customData = centroids;
+
+                        //Here the geocoder (search bar) searches by the centroid layer!//
+                        function forwardGeocoder(query) {
+                          var matchingFeatures = [];
+                          for (var i = 0; i < customData.features.length; i++) {
+                            var feature = customData.features[i];
+                            // handle queries with different capitalization than the source data by calling toLowerCase()
+                            if (
+                              feature.properties.HUNAME.toLowerCase().search(
+                                query.toLowerCase()
+                              ) !== -1
+                            ) {
+                              feature["place_name"] =
+                                "💧 " +
+                                feature.properties.HUNAME +
+                                " Watershed";
+                              feature["center"] = feature.geometry.coordinates;
+                              feature["place_type"] = ["Watershed"];
+                              matchingFeatures.push(feature);
+                            }
+                          }
+                          return matchingFeatures;
+                        }
+
+                        //These are the geocoder settings from mapbox that can be customized//
+                        //Set to search nearby the current window//
+                        var geocoder = new MapboxGeocoder({
+                          accessToken: mapboxgl.accessToken,
+                          localGeocoder: forwardGeocoder,
+                          zoom: 11,
+                          marker: false,
+                          countries: "us",
+                          placeholder: "Search by Address or Watershed",
+                          mapboxgl: mapboxgl,
+                          bbox: [
+                            -117.536425,
+                            32.527719,
+                            -115.64114324793712,
+                            33.48288810647041
+                          ],
+                          proximity: {
+                            longitude: -117.21329,
+                            latitude: 32.738262
+                          }
+                        });
+
+                        document
+                          .getElementById("geocoder")
+                          .appendChild(geocoder.onAdd(map));
+                        // Add the geocoder to the map
+
+                        //Here we add a point for the result//
+                        map.addSource("single-point", {
+                          type: "geojson",
+                          data: {
+                            type: "FeatureCollection",
+                            features: []
+                          }
+                        });
+
+                        //It's a star//
+                        map.addLayer({
+                          id: "point",
+                          source: "single-point",
+                          type: "symbol",
+                          layout: {
+                            "icon-image": "star-border-26"
+                          }
+                        });
+
+                        geocoder.on("result", function(e) {
+                          map
+                            .getSource("single-point")
+                            .setData(e.result.geometry);
+                        });
+
+                        //Connects our polygons to our centroids//
+                        var poly1 = $.map(watersheds.features, function(
+                          shed,
+                          index
+                        ) {
+                          return turf.polygon(shed.geometry.coordinates, {
+                            pop: shed.properties.HUNAME
+                          });
+
+                          var water_centroid = turf.centroid(
+                            e.features[0].geometry.coordinates
+                          );
+                          console.log("centroid", water_centroid);
+
+                          var name = e.features[0].properties.name;
+
+                          console.log("poly1: ", poly1);
+
+                          popup
+                            .setLngLat(water_centroid)
+                            .setHTML("<h3>" + selected_listing + "</h3>")
+
+                            .addTo(map);
+                        });
+
+                        //This is the popup from the geocode//
+                        geocoder.on("result", function(result) {
+                          var pt1 = turf.point(
+                            result.result.geometry.coordinates
+                          );
+                          var points = turf.featureCollection([pt1]);
+                          var polygons = turf.featureCollection(poly1);
+
+                          var tagged = turf.tag(
+                            points,
+                            polygons,
+                            "pop",
+                            "watershed"
+                          );
+
+                          //Customizes the mapbox geocoder response outputs//
+                          var coord = result.result.geometry.coordinates;
+                          var address = result.result.properties.address;
+                          var text = result.result.place_name
+                            .split(", California")[0]
+                            .split(", Tijuana")[0];
+                          var shedname =
+                            tagged.features[0].properties.watershed;
+
+                          popup
+                            .setLngLat(coord)
+                            .setHTML(
+                              "<h3>" +
+                                text +
+                                "<hr>" +
+                                shedname +
+                                " WATERSHED" +
+                                "</h3>"
+                            )
+
+                            .addTo(map);
+                          console.log("result", result.result);
+
+                          var filter = ["in", "HUNAME"];
+
+                          filter.push(shedname);
+
+                          map.setFilter("watershedshighlight", filter);
+                          console.log("shed name ", shedname);
+                          console.log("filter ", filter);
+                        });
+                      }
+                    );
+                  }
+                }
+              );
+            }
+          }
+        );
+      });
+    </script>
+  </body>
+</html>

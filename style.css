@@ -1,0 +1,403 @@
+/* CSS files add styling rules to your content */
+
+@font-face {
+  font-family: geomanist;
+  src: url(https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2FGeomanist-Regular.otf?v=1573505460988);
+}
+@font-face {
+  font-family: geomanist-bold;
+  src: url(https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fgeomanist-bold-webfont.ttf?v=1573505490192);
+}
+@font-face {
+  font-family: geomanist-ultra;
+  src: url(https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fgeomanist-ultra-webfont_9bd2252e.ttf?v=1573505490130);
+}
+
+
+div {
+  font-family: geomanist;
+}
+
+body {
+  font-family: geomanist;
+  margin: 2em;
+  color: #000000;
+}
+
+a {
+  font-family: geomanist;
+  color: #000000;
+  line-height: 1.5em;
+  text-align: left;
+}
+
+h1 {
+  font-family: geomanist;
+  color: #373fff;
+  text-align: center;
+}
+
+hlabel1 {
+  color: #ffffff;
+  font-family: geomanist-ultra;
+  text-align: center;
+}
+
+hlabel {
+  font-family: geomanist-bold;
+  color: rgba(25, 111, 153, 0.9);
+  text-align: center;
+}
+
+h2 {
+  color: #0d6895;
+  opacity: 0.9;
+  font-family: geomanist;
+  font-size: 2.5em;
+  font-weight: 700;
+  text-align: center;
+  margin: 12px;
+}
+
+h2label {
+  color: rgba(25, 111, 153, 0.9);
+  font-size: 1.25em;
+  font-family: geomanist;
+  text-align: center;
+}
+
+h3 {
+  color: #fff;
+  font-size: 0.95em;
+  font-family: geomanist;
+  font-weight: 400;
+  text-align: center;
+}
+
+h6 {
+  color: #fff;
+  font-size: 0.95em;
+  font-family: geomanist;
+  text-align: center;
+}
+
+h4 {
+  color: #007ad1;
+  font-family: geomanist;
+  text-align: center;
+}
+h5 {
+  color: #007ad1;
+  font-family: geomanist;
+  text-align: center;
+  font-size: 1em;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+html,
+body,
+#map {
+  height: 100%;
+  margin: 0px;
+  color: #fff;
+}
+
+#features {
+  margin-top: 0px;
+  width: 100%;
+}
+@media only screen and (max-width: 1100px) {
+  #title {
+    display: none;
+  }
+}
+
+.map-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  padding: 0px;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  border-radius: 0px;
+}
+
+
+/* Marker tweaks */
+.mapboxgl-popup-close-button {
+  display: none;
+}
+
+.mapboxgl-popup-content {
+  font: 400 15px/22px geomanist;
+  padding: 0;
+  width: 180px;
+  overflow: auto;
+}
+
+.mapboxgl-popup-content-wrapper {
+  padding: 1%;
+}
+
+.mapboxgl-popup-content h3 {
+  background: rgba(13,104,149, 0.8);
+  color: #fff;
+  margin: 0;
+  padding: 10px;
+  border-radius: 7px 7px 7px 7px;
+  font-weight: 700;
+}
+
+.mapboxgl-popup-content h4 {
+  margin: 0;
+  display: block;
+  padding: 10px;
+  font-weight: 400;
+}
+
+.mapboxgl-popup-content div {
+  padding: 10px;
+  border: 10px;
+}
+
+
+.mapboxgl-popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: -webkit-flex;
+    display: flex;
+    will-change: transform;
+    pointer-events: none;
+}
+
+.mapboxgl-popup-anchor-top,
+.mapboxgl-popup-anchor-top-left,
+.mapboxgl-popup-anchor-top-right {
+    -webkit-flex-direction: column;
+    flex-direction: column;
+}
+
+.mapboxgl-popup-anchor-bottom,
+.mapboxgl-popup-anchor-bottom-left,
+.mapboxgl-popup-anchor-bottom-right {
+    -webkit-flex-direction: column-reverse;
+    flex-direction: column-reverse;
+}
+
+.mapboxgl-popup-anchor-left {
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+.mapboxgl-popup-anchor-right {
+    -webkit-flex-direction: row-reverse;
+    flex-direction: row-reverse;
+}
+
+.mapboxgl-popup-tip {
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    z-index: 1;
+}
+
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+    -webkit-align-self: center;
+    align-self: center;
+    border-top: none;
+    border-bottom-color: rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip {
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    border-top: none;
+    border-left: none;
+    border-bottom-color: rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+    -webkit-align-self: flex-end;
+    align-self: flex-end;
+    border-top: none;
+    border-right: none;
+    border-bottom-color:  rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+    -webkit-align-self: center;
+    align-self: center;
+    border-bottom: none;
+    border-top-color:  rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip {
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    border-bottom: none;
+    border-left: none;
+    border-top-color:  rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+    -webkit-align-self: flex-end;
+    align-self: flex-end;
+    border-bottom: none;
+    border-right: none;
+    border-top-color:  rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    -webkit-align-self: center;
+    align-self: center;
+    border-left: none;
+    border-right-color:  rgba(13,104,149, 0.8);
+}
+
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    -webkit-align-self: center;
+    align-self: center;
+    border-right: none;
+    border-left-color:  rgba(13,104,149, 0.8);
+}
+
+
+
+.container {
+  position: fixed;
+  height: 125px;
+  width: 100%;
+  background: #fff;
+  bottom: 0;
+}
+
+#watershed_list {
+  position: absolute;
+  top: 20px;
+  right: 40%;
+}
+
+#nav {
+  position: relative;
+  background: #fff;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 5px 5px 0px 0px;
+  left: 48.5%;
+  width: 38px;
+  margin-top: -30px;
+  z-index: 4;
+  float: center;
+  font-size: 25px;
+  text-align: center;
+}
+
+i {
+  border: solid rgba(13,104,149, 1);
+  border-width: 4px 0 0 4px;
+  display: inline-block;
+  padding: 5px;
+}
+
+.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+  margin-bottom: 5px;
+  margin-top: 0px;
+}
+
+
+.filter-group {
+  font: 12px/20px geomanist;
+  font-weight: 600;
+  width: 100%;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  align-content: center;
+}
+
+.filter-group label {
+  text-align: center;
+  padding: 15px;
+  line-height: 2.5;
+  flex: 1;
+  color: rgba(13,104,149, 0.9);
+  text-align: center;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 850px) {
+  .container {
+    max-height: 16%;
+  }
+  .filter-group {
+    font-weight: 400;
+  }
+  .filter-group label {
+    font-size: 8px;
+    line-height: 1.5;
+    padding: 5px;
+    border-width: 1px 1px 0px 0px;
+    border-color: #ffffff;
+    border-style: solid;
+  }
+}
+
+.filter-group input[type="checkbox"] {
+  display: none;
+}
+
+.filter-group input[type="checkbox"] + label:hover {
+  background-color: rgba(13,104,149, 0.7);
+  color: #fff;
+}
+
+.filter-group input[type="checkbox"]:checked + label {
+  background-color: rgba(13,104,149, 0.9);
+  color: #fff;
+}
+
+.geocoder {
+  position: absolute;
+  radius: 1px;
+  right: 10px;
+  top: 10px;
+  font-family: geomanist;
+  width: 60%;
+  max-width: 400px;
+}
+.geocoder div {
+  min-width: 100%;
+}
+button, input, select, textarea, optgroup {
+  font-family: geomanist;
+}
+.mapboxgl-ctrl-geocoder--input {
+  font-family: geomanist;
+  padding: 6px 35px 2px;
+}
+@media only screen and (max-width: 850px) {
+  .geocoder {
+    width: 95%;
+    padding: 5px;
+  }
+}
+
+.mapboxgl-ctrl-bottom-left .suggestions,
+.mapboxgl-ctrl-bottom-right .suggestions {
+  bottom: auto;
+  top: 100%;
+}
+
