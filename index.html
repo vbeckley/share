@@ -119,7 +119,7 @@
         //The watersheds are simplified to 1000ft accuracy to reduce the number of verticies//
         //Which is why I have them fade away when zoomed in close bc they aren't accurate at that zoom//
         $.getJSON(
-          "https://cdn.glitch.com/ee92b975-355b-4afc-a2dc-47443e2a1033%2Fbasins_simplified_1000ft_1.geojson?v=1567046320135",
+          "watershed_basins_1000ft_simplifed.geojson",
           function(watersheds) {
             map.addSource("watersheds", {
               type: "geojson",
