@@ -305,6 +305,7 @@
                           [
                             "Community",
                             "Coastkeeper Project Site",
+                             "Public Land or Protected Area",
                             "Coastkeeper HQ"
                           ],
                           12,
@@ -336,6 +337,7 @@
                         "#9e9e9e",
                         [
                           "Point of Interest",
+                          "Public Land or Protected Area",
                           "Coastkeeper HQ"
                         ],
                         "#a8a8a8",
@@ -401,6 +403,8 @@
                             "protected_water_marker_newblue-01",
                             ["Coastkeeper Project Site"],
                             "community_marker",
+                            ["Public Land or Protected Area"],
+                            "public_land_marker",
                             ["Community"],
                             "community_marker",
                             "dot-15"
@@ -454,6 +458,9 @@
                       } else if (type == "Protected Water Body") {
                         legend_icon =
                           "blue_fish.svg";
+                         } else if (type == "Public Land or Protected Area") {
+                        legend_icon =
+                          "public_lands2.svg";
                       } else if (
                         type == "Coastkeeper Project Site" ||
                         type == "Coastkeeper HQ"
