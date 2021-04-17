@@ -305,7 +305,9 @@
                           [
                             "Community",
                             "Coastkeeper Project Site",
-                             "Public Land or Protected Area",
+                            "Public Land or Protected Area",
+                            "Community Garden",
+                            "School",
                             "Coastkeeper HQ"
                           ],
                           12,
@@ -338,6 +340,7 @@
                         [
                           "Point of Interest",
                           "Public Land or Protected Area",
+                          "School",
                           "Coastkeeper HQ"
                         ],
                         "#a8a8a8",
@@ -347,7 +350,10 @@
                           "Coastkeeper Project Site"
                         ],
                         "#5babb5",
-                        ["Recreation Destination"],
+                        [
+                          "Recreation Destination", 
+                          "Community Garden"
+                        ],
                         "#6b6b6b",
                         "#9e9e9e"
                       ],
@@ -359,6 +365,8 @@
                           "Community",
                           "Coastkeeper Project Site",
                           "Coastkeeper HQ",
+                          "School",
+                          "Community Garden",
                           "Protected Water Body",
                           "Body of Water"
                         ],
@@ -399,9 +407,13 @@
                             "rec_marker",
                             ["Coastkeeper HQ"],
                             "home_marker",
+                            ["Community Garden"],
+                            "public_land_marker",
                             ["Protected Water Body"],
                             "protected_water_marker_newblue-01",
                             ["Coastkeeper Project Site"],
+                            "community_marker",
+                            ["School"],
                             "community_marker",
                             ["Public Land or Protected Area"],
                             "public_land_marker",
@@ -452,15 +464,21 @@
                       } else if (type == "Body of Water") {
                         legend_icon =
                           "blue_water.svg";
+                      } else if (type == "School") {
+                        legend_icon =
+                          "blue_water.svg";
                       } else if (type == "Recreation Destination") {
                         legend_icon =
                           "green_rec.svg";
                       } else if (type == "Protected Water Body") {
                         legend_icon =
                           "blue_fish.svg";
-                         } else if (type == "Public Land or Protected Area") {
+                      } else if (type == "Public Land or Protected Area") {
                         legend_icon =
                           "public_lands2.svg";
+                      } else if (type == "Community Garden") {
+                        legend_icon =
+                         "public_lands2.svg";
                       } else if (
                         type == "Coastkeeper Project Site" ||
                         type == "Coastkeeper HQ"
